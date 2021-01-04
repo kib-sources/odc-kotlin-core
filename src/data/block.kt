@@ -5,6 +5,7 @@
 package core.data
 
 import java.security.PublicKey
+import java.security.Signature
 import java.util.*
 import kotlin.test.expect
 
@@ -41,13 +42,18 @@ data class ProtectedBlock(
         Сопроваждающий блок для дополнительного подтверждения на Сервере.
         */
 
-        // Ссылка на Block
-        val refUuid: UUID,
-
-        val sok: PublicKey,
-        val sokSignature: String,
         val parentSok: PublicKey,
         val parentSokSignature: String,
+        val parentOtokSignature: String,
+
+
+        // Ссылка на Block
+        val refUuid: UUID?,
+
+        val sok: PublicKey?,
+        val sokSignature: String?,
+        val otokSignature: String?,
+
 
         )
 {
