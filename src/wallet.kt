@@ -5,7 +5,7 @@
     SIC!
     В рамках презентации -- внутри самого приложения, что не безопасно .
  */
-package core
+package core.wallet
 
 import java.security.PrivateKey
 import java.security.PublicKey
@@ -17,13 +17,32 @@ import core.crypto.Crypto
 
 import core.data.*
 
+
 class Wallet(
         private val spk: PrivateKey,
         public val sok: PublicKey,
         public val sokSignature: String,
+
+        // Сделать глобальной переменной
+        public val BOK: PublicKey,
+
         )
 {
     private val bag = HashMap<UUID, PrivateKey>()
+
+
+    var BOK_str = """-----BEGIN RSA PUBLIC KEY-----
+MEgCQQCZScdB8AFwcrZDOLVsBT7m+KyuARWixZCstV99oOMYD318o0rhAqSYk/3Q
+nxV31GMYcJv7qABEqnowEkTGDh1TAgMBAAE=
+-----END RSA PUBLIC KEY-----""";
+
+    // TODO определить BOK
+    // var BOK = X509EncodedKeySpec()
+    // var BOK = null
+
+
+    // TODO зарузка в файл
+    // TODO выгрузка из файла
 
     fun init(parentBlock: Block): ProtectedBlock{
 
@@ -41,11 +60,39 @@ class Wallet(
         )
         return protectedBlock
     }
+    fun serverInitVerification(banknote: Banknote): java.lang.Exception?{
+        // TODO данный вызов может происходить только от сервера.
+        //  Теоретически нужно проверить, что банкноты корректно подписаны
+        // throw NotImplementedError("serverInitVerification")
+        return null
+    }
 
     fun initVerification(parentBlock: Block, protectedBlock: ProtectedBlock): Exception?{
-        throw NotImplementedError("Не реализована фуцнкия Wallet->initVerification")
-        return null // Если нет ошибки
-        return Exception("Текст ошибки") // Если есть ошибка
+
+        if (parentBlock.parentUuid == null) {
+            // Передача от банка к владельцу
+            throw Exception("initVerification не требуется для передачи купюры первому владельцу. См. serverInitVerification")
+        }
+
+        // Передача от владельца владельцу
+
+        if (protectedBlock.parentOtokSignature == null)  {
+            throw java.lang.Exception("parentOtokSignature не указан!")
+        }
+        if (protectedBlock.parentSokSignature == null)  {
+            throw java.lang.Exception("parentSokSignature не указан!")
+        }
+        if (protectedBlock.sok == null)  {
+            throw java.lang.Exception("parentSokSignature не указан!")
+        }
+
+        if (Crypto.verifySignature(protectedBlock._hashParentSok, protectedBlock.parentSokSignature, this.BOK) == false){
+           throw java.lang.Exception("SOK отправителья не подписан")
+        }
+        if (Crypto.verifySignature(parentBlock._hashOtok, protectedBlock.parentOtokSignature, protectedBlock.sok) == false){
+            throw java.lang.Exception("OTOK отправителья не подписан")
+        }
+        return null
     }
 
     fun acceptanceInit(parentBlock: Block, protectedBlock: ProtectedBlock): Pair<Block, ProtectedBlock>{

@@ -4,6 +4,7 @@
 
 package core.data
 
+import core.crypto.Crypto
 import java.security.PublicKey
 import java.security.Signature
 import java.util.*
@@ -35,6 +36,11 @@ data class Block(
         )
 {
     // TODO функция отображения в JSON для передачи на сервер
+
+
+    public val _hashOtok: ByteArray get() {
+        return Crypto.hash(this.otok.toString())
+    }
 }
 
 data class ProtectedBlock(
@@ -42,9 +48,9 @@ data class ProtectedBlock(
         Сопроваждающий блок для дополнительного подтверждения на Сервере.
         */
 
-        val parentSok: PublicKey,
-        val parentSokSignature: String,
-        val parentOtokSignature: String,
+        val parentSok: PublicKey?,
+        val parentSokSignature: String?,
+        val parentOtokSignature: String?,
 
 
         // Ссылка на Block
@@ -58,6 +64,10 @@ data class ProtectedBlock(
         )
 {
         // TODO функция отображения в JSON для передачи на сервер
+
+    public val _hashParentSok: ByteArray get() {
+        return Crypto.hash(this.parentSok.toString())
+    }
 }
 
 fun blockChain2Json(blockChain: List<Block>): String{
