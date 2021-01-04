@@ -4,6 +4,7 @@ import core.*
 import crypto.Crypto
 import crypto.getString
 import org.junit.Test
+import org.junit.Assert.*
 import java.security.PublicKey
 
 class SecondUseCase {
@@ -13,16 +14,18 @@ class SecondUseCase {
     private val walletBob = Wallet(spk = B_SPK, sok = B_SOK, sokSignature = sok_signature(B_SOK))
 
     private lateinit var aliceInitSignature: String
+    private val blockchain = mutableListOf<OneBlock>()
 
     @Test
     fun useCase() {
-        val blockchain = mutableListOf<OneBlock>()
-
         val block1 = bankToAlice()
         blockchain.add(block1)
 
         val block2 = aliceToBob(block1)
         blockchain.add(block2)
+
+        validateBlockchain()
+        println("Корректны все блоки!")
     }
 
     private fun bankToAlice(): OneBlock {
@@ -151,6 +154,28 @@ class SecondUseCase {
             subscribeTransactionHash = subscribe_transaction_hash,
             subscribeTransactionSignature = subscribe_transaction_signature,
         )
+    }
+
+    private fun validateBlockchain() = blockchain.forEachIndexed { i, block ->
+        assert { block.bnid == banknote500.bnid }
+
+        val publicKey = if (i == 0) {
+            assertTrue(
+                "В первом блоке parent_uuid должен быть пустым",
+                block.parentUuid == null
+            )
+            BOK
+        } else blockchain[i - 1].otok
+
+        val transactionHash = getSubscribeTransactionHash(block.uuid, block.magic, banknote500.bnid)
+
+        assertArrayEquals(transactionHash, block.subscribeTransactionHash)
+
+        assert {
+            Crypto.verifySignature(transactionHash, block.subscribeTransactionSignature, publicKey)
+        }
+
+        println("Блок №${1 + i} корректен!")
     }
 
     private fun sok_signature(sok: PublicKey): String {
