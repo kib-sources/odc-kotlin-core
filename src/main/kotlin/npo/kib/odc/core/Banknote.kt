@@ -1,6 +1,6 @@
-package core
+package npo.kib.odc.core
 
-import crypto.Crypto
+import npo.kib.odc.crypto.Crypto
 import java.security.PrivateKey
 import java.security.PublicKey
 import java.time.LocalDateTime

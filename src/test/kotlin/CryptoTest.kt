@@ -1,5 +1,5 @@
-import crypto.*
-import crypto.Crypto.toHex
+import npo.kib.odc.crypto.*
+import npo.kib.odc.crypto.Crypto.toHex
 import org.junit.Test
 import org.junit.Assert.*
 

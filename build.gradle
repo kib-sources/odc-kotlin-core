@@ -17,14 +17,6 @@ dependencies {
 }
 
 publishing {
-    publications {
-        release(MavenPublication) {
-            groupId = 'npo.kib.odc'
-            artifactId = 'odc-kotlin-core'
-            version = '0.1'
-        }
-    }
-
     repositories {
         maven {
             name = "GitHubPackages"
@@ -42,6 +34,16 @@ publishing {
                     println 'Unable to read repository.properties for publishing'
                 }
             }
+        }
+    }
+
+    publications {
+        gpr(MavenPublication) {
+            from(components.java)
+
+            groupId = 'npo.kib.odc'
+            artifactId = 'odc-kotlin-core'
+            version = '0.3'
         }
     }
 }

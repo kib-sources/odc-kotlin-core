@@ -1,6 +1,6 @@
 package examples
 
-import core.Banknote
+import npo.kib.odc.core.Banknote
 import org.junit.Test
 import org.junit.Assert.*
 import java.time.LocalDateTime

@@ -1,8 +1,8 @@
 package examples
 
-import core.*
-import crypto.Crypto
-import crypto.getString
+import npo.kib.odc.core.*
+import npo.kib.odc.crypto.Crypto
+import npo.kib.odc.crypto.getString
 import org.junit.Test
 import org.junit.Assert.*
 import java.security.PublicKey

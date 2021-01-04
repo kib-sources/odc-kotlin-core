@@ -1,4 +1,4 @@
-package core
+package npo.kib.odc.core
 
 import java.security.PublicKey
 import java.util.*
