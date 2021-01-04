@@ -13,7 +13,6 @@ class SecondUseCase {
     private val walletBob = Wallet(spk = B_SPK, sok = B_SOK, sokSignature = sok_signature(B_SOK))
 
     private lateinit var aliceInitSignature: String
-    private val None = null
 
     @Test
     fun useCase() {
@@ -100,7 +99,7 @@ class SecondUseCase {
         }
 
         assert {
-            val h = getTransactionHash(parentUuid1, None, prevBlock.otok, bnid)
+            val h = getTransactionHash(parentUuid1, null, prevBlock.otok, bnid)
             Crypto.verifySignature(h, aliceInitSignature, walletAlice.sok)
         }
 
@@ -123,7 +122,6 @@ class SecondUseCase {
             Crypto.verifySignature(h, sokSignatureBob, BOK)
         }
 
-
         assert {
             val h = getTransactionHash(uuid, parent_uuid, otok, bnid)
             Crypto.verifySignature(h, init_wallet_signature, sokBob)
@@ -134,7 +132,9 @@ class SecondUseCase {
             walletAlice.subscribe(uuid, parent_uuid!!, bnid)
 
         // Проверим, что мы не можем один и тот же parent_uuid подписать дважды
-        assertThrow("Мы можем сделать 'штаны' в блокчейне!") { walletAlice.subscribe(uuid, parent_uuid, bnid) }
+        assertThrow("Мы можем сделать 'штаны' в блокчейне!") {
+            walletAlice.subscribe(uuid, parent_uuid, bnid)
+        }
 
         // ----------- Канал связи --------------------
         // Алиса передаёт Бобу: magic, subscribe_transaction_hash, subscribe_transaction_signature
@@ -156,15 +156,14 @@ class SecondUseCase {
     private fun sok_signature(sok: PublicKey): String {
         // В нормальном решении SOK должен изначально быть подписанным внутри SIM карты
         val h = Crypto.hash(sok.getString())
-        val sokSignature = Crypto.signature(h, BPK)
-        return sokSignature
+        return Crypto.signature(h, BPK)
     }
 
     private fun assert(block: () -> Boolean) {
         assert(block())
     }
 
-    fun assertThrow(msg: String, block: () -> Any) {
+    private fun assertThrow(msg: String, block: () -> Any) {
         val res = runCatching { block() }
 
         if (res.isSuccess)

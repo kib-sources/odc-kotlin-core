@@ -25,11 +25,8 @@ class Wallet(val spk: PrivateKey, val sok: PublicKey, val sokSignature: String) 
     }
 
     fun subscribe(uuid: UUID, parentUuid: UUID, bnid: String): Subscription {
-        if (parentUuid in bag.keys)
-            throw Exception("Уже передан блок с uuid=${parentUuid}")
-
         val otpk = bag[parentUuid]
-            ?: throw Exception("Блока с uuid=${parentUuid} никогда не было в кошельке")
+            ?: throw Exception("Уже передан блок с uuid=$parentUuid или данного блока никогда не было в кошельке")
 
         val magic = randomMagic()
 
