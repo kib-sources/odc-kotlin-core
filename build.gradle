@@ -1,5 +1,6 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.4.10'
+    id 'maven-publish'
 }
 
 group 'npo.kib'
@@ -13,4 +14,34 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
     testImplementation("io.kotlintest:kotlintest:2.0.7")
+}
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = 'npo.kib.odc'
+            artifactId = 'odc-kotlin-core'
+            version = '0.1'
+        }
+    }
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/fktrcfylh1234567/odc-kotlin-core"
+
+            file("./repository.properties").with { propFile ->
+                if (propFile.canRead()) {
+                    def properties = new Properties()
+                    properties.load(new FileInputStream(propFile))
+                    credentials {
+                        username properties['GITHUB_ACTOR']
+                        password properties['GITHUB_TOKEN']
+                    }
+                } else {
+                    println 'Unable to read repository.properties for publishing'
+                }
+            }
+        }
+    }
 }
