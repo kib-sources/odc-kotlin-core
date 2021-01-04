@@ -1,5 +1,8 @@
-import npo.kib.odc.crypto.*
-import npo.kib.odc.crypto.Crypto.toHex
+import crypto.Crypto
+import crypto.Crypto.toHex
+import crypto.getString
+import crypto.loadPrivateKey
+import crypto.loadPublicKey
 import org.junit.Test
 import org.junit.Assert.*
 

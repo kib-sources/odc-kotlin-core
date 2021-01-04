@@ -1,6 +1,6 @@
-package npo.kib.odc.core
+package core
 
-import npo.kib.odc.crypto.Crypto
+import crypto.Crypto
 import java.security.PrivateKey
 import java.security.PublicKey
 import java.util.*

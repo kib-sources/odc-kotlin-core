@@ -1,4 +1,4 @@
-package npo.kib.odc.crypto
+package crypto
 
 import java.nio.charset.StandardCharsets
 import java.security.*

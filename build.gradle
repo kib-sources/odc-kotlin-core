@@ -43,7 +43,7 @@ publishing {
 
             groupId = 'npo.kib.odc'
             artifactId = 'odc-kotlin-core'
-            version = '0.3'
+            version = '0.2'
         }
     }
 }
