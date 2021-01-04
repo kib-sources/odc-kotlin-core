@@ -1,16 +1,19 @@
 package core
 
+import java.security.PublicKey
+import java.util.*
+
 data class OneBlock(
-    val uuid: String,
-    val parent_uuid: String,
+    val uuid: UUID,
+    val parentUuid: UUID?,
 
     // BankNote id
     val bnid: String,
 
     // One Time Open key
-    val otok: String,
+    val otok: PublicKey,
 
     val magic: String,
-    val subscribe_transaction_hash: String,
-    val subscribe_transaction_signature: String,
+    val subscribeTransactionHash: ByteArray,
+    val subscribeTransactionSignature: String,
 )

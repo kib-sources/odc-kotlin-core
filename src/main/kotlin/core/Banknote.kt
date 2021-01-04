@@ -13,7 +13,7 @@ data class Banknote(
 
     val amount: Int,
 
-    val currency_code: Int,
+    val currencyCode: Int,
 
     // BankNote id
     val bnid: String,
@@ -25,7 +25,7 @@ data class Banknote(
     val signature: String,
 ) {
     fun verify(bok: PublicKey): Boolean {
-        val hash = make_hash(bnid)
+        val hash = makeHash(bnid)
 
         if (!hash.contentEquals(this.hash))
             return false
@@ -37,24 +37,24 @@ data class Banknote(
     }
 
     companion object {
-        fun make_bnid(bin: Int): String {
+        fun makeBnid(bin: Int): String {
             val now = LocalDateTime.now()
             val formatter = DateTimeFormatter.ofPattern("YYYYMMddHHmmssSSSSSS")
             Thread.sleep(1) // необходимо поспать, чтобы гарантировать уникальный номер
             return "${bin}-${now.format(formatter)}"
         }
 
-        fun make_hash(bnid: String): ByteArray = Crypto.hash(bnid)
+        fun makeHash(bnid: String): ByteArray = Crypto.hash(bnid)
 
-        fun init(bpk: PrivateKey, bin: Int, amount: Int, currency_code: Int = RUSSIAN_RUBLE): Banknote {
-            val bnid = make_bnid(bin)
-            val hash = make_hash(bnid)
+        fun init(bpk: PrivateKey, bin: Int, amount: Int, currencyCode: Int = RUSSIAN_RUBLE): Banknote {
+            val bnid = makeBnid(bin)
+            val hash = makeHash(bnid)
             val signature = Crypto.signature(hash, bpk)
 
             return Banknote(
                 bin,
                 amount = amount,
-                currency_code = currency_code,
+                currencyCode = currencyCode,
                 bnid = bnid,
                 hash = hash,
                 signature = signature

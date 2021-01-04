@@ -29,19 +29,19 @@ object Crypto {
         return v.sha256()
     }
 
-    fun signature(hex_hash: ByteArray, privateKey: PrivateKey): String {
+    fun signature(hexHash: ByteArray, privateKey: PrivateKey): String {
         val privateSignature: Signature = Signature.getInstance("SHA256withRSA")
         privateSignature.initSign(privateKey)
-        privateSignature.update(hex_hash)
+        privateSignature.update(hexHash)
 
         val signature: ByteArray = privateSignature.sign()
         return Base64.getEncoder().encodeToString(signature)
     }
 
-    fun verifySignature(hex_hash: ByteArray, signature: String, publicKey: PublicKey): Boolean {
+    fun verifySignature(hexHash: ByteArray, signature: String, publicKey: PublicKey): Boolean {
         val publicSignature = Signature.getInstance("SHA256withRSA")
         publicSignature.initVerify(publicKey)
-        publicSignature.update(hex_hash)
+        publicSignature.update(hexHash)
 
         val signatureBytes = Base64.getDecoder().decode(signature)
 
