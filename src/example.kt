@@ -155,13 +155,23 @@ fun example2(exampleParty: ExampleParty, banknote:Banknote, banknote_blockchain:
 
     // Передача по каналу block, protectedBlock стороне А.
 
+    // TODO удалить из диаграммы
     // Шаг 5. Сторона А должна убедится что корректно собраны все блоки
-    val exp = walletA.acceptanceInitVerification(parentBlock, childBlock, protectedBlock)
-    if (exp != null){
-        throw exp
+
+    // Шаг 6.
+    childBlock = walletA.signature(parentBlock, childBlock, protectedBlock, bok)
+
+    // Передача по каналу
+
+    // Шаг 7. Проверка
+
+    if (! childBlock.verification(parentBlock.otok)){
+        throw Exception("childBlock некорректно подписан")
     }
 
-    //
+    // Шаг 8
+    banknote_blockchain.add(childBlock)
+    banknote_protectedBlockChain.add(protectedBlock)
 
 }
 

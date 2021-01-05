@@ -190,7 +190,7 @@ nxV31GMYcJv7qABEqnowEkTGDh1TAgMBAAE=
         return Pair(childBlock, protectedBlock_new)
     }
 
-    fun acceptanceInitVerification(parentBlock: Block, childBlock: Block, protectedBlock: ProtectedBlock, bok: PublicKey): Exception?{
+    private fun acceptanceInitVerification(parentBlock: Block, childBlock: Block, protectedBlock: ProtectedBlock, bok: PublicKey): Exception?{
 
         assert(parentBlock.uuid == childBlock.parentUuid)
 
@@ -208,14 +208,31 @@ nxV31GMYcJv7qABEqnowEkTGDh1TAgMBAAE=
         return null
     }
 
-    fun signature(childBlock: Block, protectedBlock: ProtectedBlock): Pair<Block, ProtectedBlock>{
 
-        // TODO добавить в childBlock:
-        //   1. magic
-        //   2. hashValue
-        //   3. signature
+    fun signature(parentBlock: Block, childBlock: Block, protectedBlock: ProtectedBlock, bok: PublicKey): Block{
+        val exp = this.acceptanceInitVerification(parentBlock, childBlock, protectedBlock, bok)
+        if (exp != null){
+            throw exp
+        }
 
-        return Pair(childBlock, protectedBlock)
+        val magic = randomMagic()
+        val hashValue = makeBlockHashValue(childBlock.uuid, childBlock.parentUuid, childBlock.bnid, magic)
+
+        val otpk = this.bag[parentBlock.uuid]
+
+        val signature = Crypto.signature(hashValue, otpk!!)
+
+        val childBlock_full = Block(
+                uuid=childBlock.uuid,
+                parentUuid=childBlock.parentUuid,
+                bnid=childBlock.bnid,
+                otok=childBlock.otok,
+                magic=magic,
+                hashValue=hashValue,
+                signature=signature,
+        )
+
+        return childBlock_full
     }
 }
 
