@@ -114,6 +114,7 @@ fun example1(exampleParty: ExampleParty): Triple<Banknote, MutableList<Block>, M
 }
 
 fun example2(exampleParty: ExampleParty, banknote:Banknote, banknote_blockchain:MutableList<Block>, banknote_protectedBlockChain:MutableList<ProtectedBlock>){
+    println("example2 begin")
     /// ---------------------------------------------------------------------------------------------------------------
     /// A -> B
     val walletA = exampleParty.walletA
@@ -155,23 +156,25 @@ fun example2(exampleParty: ExampleParty, banknote:Banknote, banknote_blockchain:
 
     // Передача по каналу block, protectedBlock стороне А.
 
-    // TODO удалить из диаграммы
-    // Шаг 5. Сторона А должна убедится что корректно собраны все блоки
-
-    // Шаг 6.
+    // Шаг 5.
     childBlock = walletA.signature(parentBlock, childBlock, protectedBlock, bok)
 
     // Передача по каналу
 
-    // Шаг 7. Проверка
+    // Шаг 6. Проверка
 
     if (! childBlock.verification(parentBlock.otok)){
         throw Exception("childBlock некорректно подписан")
     }
 
-    // Шаг 8
+    // Шаг 7 local push
     banknote_blockchain.add(childBlock)
     banknote_protectedBlockChain.add(protectedBlock)
+
+    // Шаг 8
+    //  отправка по каналу банку
+    val bankIssuer = exampleParty.bankIssuer
+    bankIssuer.pushBlock(banknote, childBlock, protectedBlock)
 
 }
 
@@ -181,5 +184,7 @@ fun main(args: Array<String>){
     
     val exampleParty = inits()
     val (banknote, banknote_blockchain, banknote_protectedBlockChain) = example1(exampleParty)
-    
+    example2(exampleParty,  banknote, banknote_blockchain, banknote_protectedBlockChain)
+    // -----------------------------------------------------------------------------------------------------------------
+    println("Все готово")
 }

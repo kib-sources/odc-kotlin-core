@@ -81,4 +81,95 @@ block = bankIssuer.signature(banknote, block, protectedBlock)
 
 ![Alt text](./doc/diagram_2.png)
 
-TODO описание
+---
+
+**Шаг 1**
+Инициализация запроса на передачу.
+
+Для этого нужно сформировать:
+```kotlin
+val parentBlock = banknote_blockchain.last()
+
+val protectedBlock_part = ProtectedBlock(
+        parentSok=walletA.sok,
+        parentSokSignature=walletA.sokSignature,
+        parentOtokSignature=walletA.otokSignature(parentBlock.otok),
+        refUuid=null,
+        sok=null,
+        sokSignature=null,
+        otokSignature=null,
+)
+```
+и передать `banknote_blockchain` и `protectedBlock_part` по каналу Бобу
+
+---
+
+**Шаг 2**
+Боб проверяет весь блокчейн
+```kotlin
+var lastKey = bok
+for (block in banknote_blockchain){
+    block.verification(lastKey)
+    lastKey = block.otok
+}
+```
+
+(!) *Можно оптимизировать и в конце каждого блока поставить подпись банка.
+Тогда нужно проверять только с самого последнего блока, для которого есть подпись*
+
+---
+
+**Шаг 3** (опционально)
+
+Если есть сеть -- лучше ещё подписать и проверить в банке. 
+
+Но операции можно проводить офлайн
+
+---
+
+**Шаг 4** 
+
+Боб принимает купюру, для этого он должен создать свой блок
+```kotlin
+var (childBlock, protectedBlock) = walletB.acceptanceInit(parentBlock, protectedBlock_part, bok)
+```
+
+Данные передаются по каналу Алисе
+
+--- 
+
+**Шаг 5**
+
+Алиса проверяет корректность ключей 
+(подфункция `acceptanceInitVerification` внутри `signature`) 
+и подписывает:
+```kotlin
+childBlock = walletA.signature(parentBlock, childBlock, protectedBlock, bok)
+```
+
+Данный блок передаётся по каналу. 
+На всякий случай Алиса выжидает (**Шаг 6a**) и переходит к **Шагу 7**.
+
+---
+
+**Шаг 6b**
+
+Боб проверяет корректность последнего блока 
+(весь блокчейн проверен на **шаге 2**):
+```kotlin
+if (! childBlock.verification(parentBlock.otok)){
+    throw Exception("childBlock некорректно подписан")
+}
+```
+
+---
+
+**Шаг 7**
+Записываем новый блок в блокчейн
+```kotlin
+banknote_blockchain.add(childBlock)
+banknote_protectedBlockChain.add(protectedBlock)
+```
+
+
+---
