@@ -11,6 +11,7 @@ import core.wallet.Wallet
 import core.enums.ISO_4217_CODE
 import java.lang.Exception
 import java.security.PublicKey
+import java.util.*
 
 fun checkExample(){
     // println("Hello Kotlin 4!!")
@@ -115,7 +116,52 @@ fun example1(exampleParty: ExampleParty): Triple<Banknote, MutableList<Block>, M
 fun example2(exampleParty: ExampleParty, banknote:Banknote, banknote_blockchain:MutableList<Block>, banknote_protectedBlockChain:MutableList<ProtectedBlock>){
     /// ---------------------------------------------------------------------------------------------------------------
     /// A -> B
+    val walletA = exampleParty.walletA
+    val walletB = exampleParty.walletA
+    val BIN = exampleParty.BIN
+    val bok = exampleParty.BOK
 
+    // А передаёт Б: banknote_blockchain
+
+    // Шаг 1. Создание запроса на уведомление
+    val parentBlock = banknote_blockchain.last()
+
+    val protectedBlock_part = ProtectedBlock(
+            parentSok=walletA.sok,
+            parentSokSignature=walletA.sokSignature,
+            parentOtokSignature=walletA.otokSignature(parentBlock.otok),
+            refUuid=null,
+            sok=null,
+            sokSignature=null,
+            otokSignature=null,
+    )
+
+
+    // TODO переименовать на схеме: blockchain verification
+    // Шаг 2. Init_verification
+    var lastKey = bok
+    for (block in banknote_blockchain){
+        block.verification(lastKey)
+        lastKey = block.otok
+    }
+
+    // Шаг 3. push
+    //    1. передача блокчейна по сети
+    //    2. в случае возникновения конфликтов блокчейна -- об этом сообщит сервер
+
+    // Шаг 4.
+
+    var (childBlock, protectedBlock) = walletB.acceptanceInit(parentBlock, protectedBlock_part, bok)
+
+    // Передача по каналу block, protectedBlock стороне А.
+
+    // Шаг 5. Сторона А должна убедится что корректно собраны все блоки
+    val exp = walletA.acceptanceInitVerification(parentBlock, childBlock, protectedBlock)
+    if (exp != null){
+        throw exp
+    }
+
+    //
 
 }
 

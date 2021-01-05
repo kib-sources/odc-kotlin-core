@@ -47,6 +47,10 @@ nxV31GMYcJv7qABEqnowEkTGDh1TAgMBAAE=
     // TODO зарузка в файл
     // TODO выгрузка из файла
 
+    fun otokSignature(otok: PublicKey): String{
+        return Crypto.signature(Crypto.hash(otok.toString()), this.spk)
+    }
+
     fun firstBlock(banknote: Banknote): Pair<Block, ProtectedBlock>{
         val uuid = UUID.randomUUID()
 
@@ -63,7 +67,7 @@ nxV31GMYcJv7qABEqnowEkTGDh1TAgMBAAE=
                 hashValue=null,
                 signature=null,
         )
-        val otokSignature = Crypto.signature(Crypto.hash(otok.toString()), this.spk)
+        val otokSignature_ = this.otokSignature(otok)
 
         val protectedBlock = ProtectedBlock(
                 parentSok=null,
@@ -72,7 +76,7 @@ nxV31GMYcJv7qABEqnowEkTGDh1TAgMBAAE=
                 refUuid=uuid,
                 sok=this.sok,
                 sokSignature=this.sokSignature,
-                otokSignature=otokSignature,
+                otokSignature=otokSignature_,
         )
 
         return Pair(block, protectedBlock)
@@ -129,15 +133,61 @@ nxV31GMYcJv7qABEqnowEkTGDh1TAgMBAAE=
         return null
     }
 
-    fun acceptanceInit(parentBlock: Block, protectedBlock: ProtectedBlock): Pair<Block, ProtectedBlock>{
-        throw NotImplementedError("Не реализована фуцнкия Wallet->acceptance_init")
-        // val childBlock = Block(...)
-        // TODO необходимо добавть в protectedBlock поля:
-        //   1. refUuid
-        //   2. sok
-        //   3. sokSignature
-        //   4. otokSignature
-        // return Paar(childBlock, protectedBlock)
+    fun acceptanceInit(parentBlock: Block, protectedBlock: ProtectedBlock, bok: PublicKey): Pair<Block, ProtectedBlock>{
+
+
+        if (protectedBlock.parentSokSignature == null){
+            throw java.lang.Exception("protectedBlock.parentSokSignature == null")
+        }
+        if (protectedBlock.parentSok == null){
+            throw java.lang.Exception("protectedBlock.parentSok == null")
+        }
+        if (protectedBlock.parentOtokSignature == null){
+            throw java.lang.Exception("protectedBlock.parentOtokSignature == null")
+        }
+
+        if (! Crypto.verifySignature(Crypto.hash(protectedBlock.parentSok.toString()), protectedBlock.parentSokSignature, bok)){
+            throw java.lang.Exception("Некорректный soc")
+        }
+
+        val parentOtok = parentBlock.otok
+
+        if (! Crypto.verifySignature(Crypto.hash(parentOtok.toString()), protectedBlock.parentOtokSignature, protectedBlock.parentSok)){
+            throw java.lang.Exception("Некорректный parent otok")
+        }
+
+        // ------------------------------------------------------------------------------------------------------------
+        // Теперь нужно создать новый блок
+        val uuid = UUID.randomUUID()
+
+        val (otok, otpk) = Crypto.initPair()
+
+        this.bag[uuid] = otpk
+
+        val childBlock = Block(
+                uuid=uuid,
+                parentUuid=parentBlock.uuid,
+                bnid=parentBlock.bnid,
+                otok=otok,
+                magic=null,
+                hashValue=null,
+                signature=null,
+        )
+        val otokSignature_ = this.otokSignature(otok)
+
+        val protectedBlock_new = ProtectedBlock(
+                parentSok=protectedBlock.parentSok,
+                parentSokSignature=protectedBlock.parentSokSignature,
+                parentOtokSignature=protectedBlock.parentOtokSignature,
+                refUuid=uuid,
+                sok=this.sok,
+                sokSignature=this.sokSignature,
+                otokSignature=otokSignature_,
+        )
+
+
+
+        return Pair(childBlock, protectedBlock_new)
     }
 
     fun acceptanceInitVerification(parentBlock: Block, childBlock: Block, protectedBlock: ProtectedBlock): Exception?{
