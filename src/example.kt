@@ -1,5 +1,6 @@
 
 import core.crypto.Crypto
+import core.data.Banknote
 import core.data.ProtectedBlock
 import core.data.Block
 import core.issuer.BankIssuer
@@ -53,7 +54,7 @@ fun inits(): ExampleParty{
     return ExampleParty(bankIssuer, walletA, walletB, BIN, bok)
 }
 
-fun example1(exampleParty: ExampleParty){
+fun example1(exampleParty: ExampleParty): Triple<Banknote, MutableList<Block>, MutableList<ProtectedBlock>>{
 
     val bankIssuer = exampleParty.bankIssuer
     val walletA = exampleParty.walletA
@@ -62,34 +63,34 @@ fun example1(exampleParty: ExampleParty){
     /// ---------------------------------------------------------------------------------------------------------------
     /// Инициализация купюры и блокчейнов.
 
-    val banknote500 = bankIssuer.newBanknote(
+    val banknote = bankIssuer.newBanknote(
             amount = 500,
             bin = BIN,
             currencyCode=ISO_4217_CODE.RUB,
     )
     println("Сгенерирована банкнота на 500 рублей")
 
-    val banknote500_blockchain: MutableList<Block> = mutableListOf()
-    val banknote500_protectedBlockChain: MutableList<ProtectedBlock> =  mutableListOf()
+    val banknote_blockchain: MutableList<Block> = mutableListOf()
+    val banknote_protectedBlockChain: MutableList<ProtectedBlock> =  mutableListOf()
 
     /// ---------------------------------------------------------------------------------------------------------------
     /// Банк -> А
 
-    // Банк по сети передает: banknote500
+    // Банк по сети передает: banknote
 
     // Шаг 2 Верификация банкноты
-    if ( ! banknote500.verification(bok)){
+    if ( ! banknote.verification(bok)){
         throw Exception("Банкнота поддельная")
     }
 
     // Шаг 3. Алиса создаёт новый блок
-    var (block, protectedBlock) = walletA.firstBlock(banknote500)
+    var (block, protectedBlock) = walletA.firstBlock(banknote)
 
     // Передача по каналу от Алисы к банку: block, protectedBlock
 
     // Шаг 4. Банк подписывает банкноту
 
-    block = bankIssuer.signature(banknote500, block, protectedBlock)
+    block = bankIssuer.signature(banknote, block, protectedBlock)
 
     // Шаг 5а верификация
     if ( ! block.verification(bok)){
@@ -101,17 +102,17 @@ fun example1(exampleParty: ExampleParty){
 
     // Шаг 6. LocalPush
 
-    banknote500_blockchain.add(block)
-    banknote500_protectedBlockChain.add(protectedBlock)
+    banknote_blockchain.add(block)
+    banknote_protectedBlockChain.add(protectedBlock)
 
     // Шаг 7. Push
-    bankIssuer.pushBlock(banknote500, block, protectedBlock)
+    bankIssuer.pushBlock(banknote, block, protectedBlock)
 
     println("Банкнота успешно передана Алисе")
+    return Triple(banknote, banknote_blockchain, banknote_protectedBlockChain)
 }
 
-fun example2(){
-
+fun example2(exampleParty: ExampleParty, banknote:Banknote, banknote_blockchain:MutableList<Block>, banknote_protectedBlockChain:MutableList<ProtectedBlock>){
     /// ---------------------------------------------------------------------------------------------------------------
     /// A -> B
 
@@ -121,6 +122,8 @@ fun example2(){
 fun main(args: Array<String>){
     println("Example application in core")
     // checkExample()
+    
     val exampleParty = inits()
-    example1(exampleParty)
+    val (banknote, banknote_blockchain, banknote_protectedBlockChain) = example1(exampleParty)
+    
 }
