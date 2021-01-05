@@ -18,11 +18,7 @@ import core.enums.ISO_4217_CODE
 import java.lang.Exception
 import kotlin.random.Random
 
-
-fun randomMagic(): String = (1..15).asSequence()
-        .map { Random.nextInt(0, 10) }
-        .map { it.toString() }
-        .reduce { acc, it -> acc + it }
+import core.utils.*
 
 class BankIssuer(
         private val bpk: PrivateKey,

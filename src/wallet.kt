@@ -18,6 +18,7 @@ import java.util.*
 import core.crypto.Crypto
 
 import core.data.*
+import core.utils.*
 
 
 class Wallet(
