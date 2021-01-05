@@ -33,36 +33,3 @@ data class Banknote(
     // TODO выгрузить из protobuf
 
 }
-
-
-fun newBanknote(
-        bpk: PrivateKey,
-        amount: Int,
-        bin:Int,
-        currencyCode: ISO_4217_CODE,
-        bnid: String? =null,
-): Banknote{
-
-    val bnid_: String = when (bnid) {
-        null -> {
-            val d = LocalDate.now()
-            val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")
-            d.format(dateTimeFormatter)
-        }
-        else -> {
-            bnid
-        }
-    }
-    val hashValue = Crypto.hash(bin.toString(), amount.toString(), currencyCode.toString(), bnid_)
-    val signature = Crypto.signature(hashValue, bpk)
-
-    val banknote = Banknote(
-            bin=bin,
-            amount=amount,
-            currencyCode=currencyCode,
-            bnid=bnid_,
-            hashValue=hashValue,
-            signature=signature,
-    )
-    return banknote
-}
