@@ -190,10 +190,22 @@ nxV31GMYcJv7qABEqnowEkTGDh1TAgMBAAE=
         return Pair(childBlock, protectedBlock_new)
     }
 
-    fun acceptanceInitVerification(parentBlock: Block, childBlock: Block, protectedBlock: ProtectedBlock): Exception?{
-        throw NotImplementedError("Не реализована фуцнкия Wallet->acceptance_init_verification")
-        return null // Если нет ошибки
-        return Exception("Текст ошибки") // Если есть ошибка
+    fun acceptanceInitVerification(parentBlock: Block, childBlock: Block, protectedBlock: ProtectedBlock, bok: PublicKey): Exception?{
+
+        assert(parentBlock.uuid == childBlock.parentUuid)
+
+        if (! Crypto.verifySignature(Crypto.hash(protectedBlock.sok.toString()), protectedBlock.sokSignature!!, bok)){
+            return java.lang.Exception("soc не подписан банком")
+        }
+
+        if (! Crypto.verifySignature(
+                Crypto.hash(childBlock.otok.toString()),
+                protectedBlock.otokSignature!!,
+                protectedBlock.sok!!,
+        )){
+            return java.lang.Exception("otok задан не SIM картой")
+        }
+        return null
     }
 
     fun signature(childBlock: Block, protectedBlock: ProtectedBlock): Pair<Block, ProtectedBlock>{
