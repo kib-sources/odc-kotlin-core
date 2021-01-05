@@ -8,6 +8,7 @@ import core.issuer.BankIssuer
 import core.wallet.Wallet
 
 import core.enums.ISO_4217_CODE
+import java.lang.Exception
 
 fun checkExample(){
     // println("Hello Kotlin 4!!")
@@ -20,7 +21,7 @@ fun checkExample(){
 
 }
 
-fun checkExampleWallet(){
+fun example1(){
 
     val BIN = 4274
 
@@ -60,12 +61,37 @@ fun checkExampleWallet(){
     /// ---------------------------------------------------------------------------------------------------------------
     /// Банк -> А
 
-    // Шаг 1. Банк по сети передает банкноту
+    // Банк по сети передает: banknote500
 
-    // Шаг 2. Алиса создаёт новый блок
-    val (block, protectedBlock) = walletA.firstBlock(banknote500)
+    // Шаг 2 Верификация банкноты
+    if ( ! banknote500.verification(bok)){
+        throw Exception("Банкнота поддельная")
+    }
 
-    bankIssuer.
+    // Шаг 3. Алиса создаёт новый блок
+    var (block, protectedBlock) = walletA.firstBlock(banknote500)
+
+    // Передача по каналу от Алисы к банку: block, protectedBlock
+
+    // Шаг 4. Банк подписывает банкноту
+
+    block = bankIssuer.signature(banknote500, block, protectedBlock)
+
+    // Шаг 5а верификация
+    if ( ! block.verification(bok)){
+        throw Exception("Некорректный блок блокчейна")
+    }
+
+    // Шаг 5b. Задержка на всякий случай (вдруг что-либо забыли)
+    // Thread.sleep(1000L)
+
+    // Шаг 6. LocalPush
+
+    banknote500_blockchain.add(block)
+    banknote500_protectedBlockChain.add(protectedBlock)
+
+    // Шаг 7. Push
+    bankIssuer.pushBlock(banknote500, block, protectedBlock)
 
 
 
@@ -78,5 +104,6 @@ fun checkExampleWallet(){
 
 fun main(args: Array<String>){
     println("Example application in core")
-    checkExample()
+    // checkExample()
+    example1()
 }

@@ -26,13 +26,19 @@ class BankIssuer(
 ){
     private val walletSoks: MutableList<PublicKey> = mutableListOf()
 
+    fun pushBlock(banknote: Banknote, block: Block, protectedBlock: ProtectedBlock): Exception?{
+        // Напишите функцию сохранения блока.
+        //   Для этого сделайте наследника от BankIssuer
+        return null
+    }
+
     fun signature(banknote: Banknote, firstBlock: Block, protectedBlock: ProtectedBlock): Block {
 
         assert(firstBlock.parentUuid == null)
         assert(banknote.bnid == firstBlock.bnid)
         assert(firstBlock.uuid == protectedBlock.refUuid)
 
-        if (this.walletSoks.contains(protectedBlock.sok) == false) {
+        if ( ! this.walletSoks.contains(protectedBlock.sok)) {
             throw Exception("Кошелёк не обнаружен в банке-эмитенте.")
         }
         if (protectedBlock.otokSignature == null){
@@ -46,11 +52,19 @@ class BankIssuer(
             throw Exception("otok сгенерирован не кошельком!")
         }
 
-        val ret_block = firstBlock.copy()
-
         val magic = randomMagic()
         val hashValue = makeBlockHashValue(firstBlock.uuid, null, firstBlock.bnid, magic)
-        val signature
+        val signature = Crypto.signature(hashValue, this.bpk)
+
+        val ret_block = Block(
+                uuid = firstBlock.uuid,
+                parentUuid = null,
+                bnid = firstBlock.bnid,
+                otok = firstBlock.otok,
+                magic = magic,
+                hashValue=hashValue,
+                signature=signature,
+        )
 
         return ret_block
     }

@@ -5,6 +5,7 @@
 package core.data
 
 import core.crypto.Crypto
+import java.lang.Exception
 import java.security.PublicKey
 import java.security.Signature
 import java.util.*
@@ -49,6 +50,25 @@ data class Block(
     public val _hashOtok: ByteArray get() {
         return Crypto.hash(this.otok.toString())
     }
+
+    fun verification(publicKey: PublicKey): Boolean{
+        // publicKey -- otok or bok
+        if (magic == null){
+            throw Exception("Блок не до конца определён. Не задан magic")
+        }
+        if (hashValue == null){
+            throw Exception("Блок не до конца определён. Не задан hashValue")
+        }
+        if (signature == null){
+            throw Exception("Блок не до конца определён. Не задан signature")
+        }
+        val hashValueCheck = makeBlockHashValue(uuid, parentUuid, bnid, magic)
+        if (hashValueCheck !== hashValue){
+            throw Exception("Некорректно подсчитан hashValue")
+        }
+        return Crypto.verifySignature(hashValue, signature, publicKey)
+    }
+
 }
 
 data class ProtectedBlock(

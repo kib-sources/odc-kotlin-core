@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter
 
 import core.enums.ISO_4217_CODE
 import core.crypto.Crypto
+import java.security.PublicKey
 
 data class Banknote(
         val bin: Int,
@@ -31,5 +32,10 @@ data class Banknote(
     // TODO выгрузить из JSON-а
     // TODO сохранить в protobuf
     // TODO выгрузить из protobuf
+
+
+    fun verification(bok: PublicKey): Boolean{
+        return Crypto.verifySignature(this.hashValue, this.signature, bok)
+    }
 
 }
