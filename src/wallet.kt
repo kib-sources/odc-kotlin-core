@@ -13,6 +13,8 @@ import java.util.*
 import kotlin.collections.HashMap
 import kotlin.random.Random.Default.nextInt
 
+import java.util.*
+
 import core.crypto.Crypto
 
 import core.data.*
@@ -43,6 +45,37 @@ nxV31GMYcJv7qABEqnowEkTGDh1TAgMBAAE=
 
     // TODO зарузка в файл
     // TODO выгрузка из файла
+
+    fun firstBlock(banknote: Banknote): Pair<Block, ProtectedBlock>{
+        val uuid = UUID.randomUUID()
+
+        val (otok, otpk) = Crypto.initPair()
+
+        this.bag[uuid] = otpk
+
+        val block = Block(
+                uuid=uuid,
+                parentUuid=null,
+                bnid=banknote.bnid,
+                otok=otok,
+                magic=null,
+                hashValue=null,
+                signature=null,
+        )
+        val otokSignature = Crypto.signature(Crypto.hash(otok.toString()), this.spk)
+
+        val protectedBlock = ProtectedBlock(
+                parentSok=null,
+                parentSokSignature=null,
+                parentOtokSignature=null,
+                refUuid=uuid,
+                sok=this.sok,
+                sokSignature=this.sokSignature,
+                otokSignature=otokSignature,
+        )
+
+        return Pair(block, protectedBlock)
+    }
 
     fun init(parentBlock: Block): ProtectedBlock{
 
@@ -185,10 +218,6 @@ fun getTransactionHash(uuid: UUID, parentUuid: UUID?, otok: PublicKey, bnid: Str
 fun getSubscribeTransactionHash(uuid: UUID, magic: String, bnid: String): ByteArray =
         Crypto.hash(uuid.toString(), magic, bnid)
 
-fun randomMagic(): String = (1..15).asSequence()
-        .map { nextInt(0, 10) }
-        .map { it.toString() }
-        .reduce { acc, it -> acc + it }
 
 fun createBankSubscription(uuid: UUID, bpk: PrivateKey, bnid: String): Subscription {
     val magic = randomMagic()

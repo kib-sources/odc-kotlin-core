@@ -11,6 +11,14 @@ import java.util.*
 import kotlin.test.expect
 
 
+fun makeBlockHashValue(uuid: UUID, parentUuid: UUID?, bnid: String, magic: String): ByteArray{
+    return if (parentUuid == null){
+        Crypto.hash(uuid.toString(), bnid, magic)
+    }else{
+        Crypto.hash(uuid.toString(), parentUuid.toString(), bnid, magic)
+    }
+}
+
 data class Block(
         /*
         Блок публичного блокчейна к каждой банкноте

@@ -4,9 +4,6 @@
 
 package core.issuer
 
-import core.crypto.Crypto
-import core.data.Banknote
-import core.enums.ISO_4217_CODE
 import java.security.PrivateKey
 import java.security.PublicKey
 import java.time.LocalDate
@@ -15,11 +12,52 @@ import java.util.*
 import kotlin.collections.HashMap
 
 
+import core.crypto.Crypto
+import core.data.*
+import core.enums.ISO_4217_CODE
+import java.lang.Exception
+import kotlin.random.Random
+
+
+fun randomMagic(): String = (1..15).asSequence()
+        .map { Random.nextInt(0, 10) }
+        .map { it.toString() }
+        .reduce { acc, it -> acc + it }
+
 class BankIssuer(
         private val bpk: PrivateKey,
         public val bok: PublicKey,
 ){
     private val walletSoks: MutableList<PublicKey> = mutableListOf()
+
+    fun signature(banknote: Banknote, firstBlock: Block, protectedBlock: ProtectedBlock): Block {
+
+        assert(firstBlock.parentUuid == null)
+        assert(banknote.bnid == firstBlock.bnid)
+        assert(firstBlock.uuid == protectedBlock.refUuid)
+
+        if (this.walletSoks.contains(protectedBlock.sok) == false) {
+            throw Exception("Кошелёк не обнаружен в банке-эмитенте.")
+        }
+        if (protectedBlock.otokSignature == null){
+            throw Exception("protectedBlock.otokSignature is null")
+        }
+        if (protectedBlock.sok == null) {
+            throw Exception("protectedBlock.sok is null")
+        }
+
+        if (Crypto.verifySignature(Crypto.hash(firstBlock.otok.toString()), protectedBlock.otokSignature, protectedBlock.sok) == false){
+            throw Exception("otok сгенерирован не кошельком!")
+        }
+
+        val ret_block = firstBlock.copy()
+
+        val magic = randomMagic()
+        val hashValue = makeBlockHashValue(firstBlock.uuid, null, firstBlock.bnid, magic)
+        val signature
+
+        return ret_block
+    }
 
     fun addWallet(sok: PublicKey): String{
         this.walletSoks.add(sok)
