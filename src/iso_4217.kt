@@ -8,7 +8,7 @@
 package core.enums
 
 
-enum class ISO_4217_CODE(val code:Int){
+enum class ISO_4217_CODE(private val code:Int){
     // AFGHANISTAN, Afghani
     AFN(971),
 
@@ -28,7 +28,17 @@ enum class ISO_4217_CODE(val code:Int){
 
 
     // Euro
-    EUR(978),
+    EUR(978);
 
     // TODO toString 8 -> "008", 12 -> "012"
+    override fun toString(): String {
+        if (this.code < 10){
+            return "00" + this.code.toString()
+        }
+        if (this.code < 100){
+            return "0" + this.code.toString()
+        }
+        return this.code.toString()
+
+    }
 }
