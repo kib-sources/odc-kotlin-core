@@ -9,6 +9,7 @@ import core.wallet.Wallet
 
 import core.enums.ISO_4217_CODE
 import java.lang.Exception
+import java.security.PublicKey
 
 fun checkExample(){
     // println("Hello Kotlin 4!!")
@@ -21,7 +22,15 @@ fun checkExample(){
 
 }
 
-fun example1(){
+data class ExampleParty(
+    val bankIssuer: BankIssuer,
+    val walletA: Wallet,
+    val walletB: Wallet,
+    val BIN: Int,
+    val BOK: PublicKey,
+)
+
+fun inits(): ExampleParty{
 
     val BIN = 4274
 
@@ -41,6 +50,15 @@ fun example1(){
     val walletA = Wallet(spkA, sokA, sokAsignature, bok)
     val walletB = Wallet(spkB, sokB, sokBsignature, bok)
 
+    return ExampleParty(bankIssuer, walletA, walletB, BIN, bok)
+}
+
+fun example1(exampleParty: ExampleParty){
+
+    val bankIssuer = exampleParty.bankIssuer
+    val walletA = exampleParty.walletA
+    val BIN = exampleParty.BIN
+    val bok = exampleParty.BOK
     /// ---------------------------------------------------------------------------------------------------------------
     /// Инициализация купюры и блокчейнов.
 
@@ -103,5 +121,6 @@ fun example2(){
 fun main(args: Array<String>){
     println("Example application in core")
     // checkExample()
-    example1()
+    val exampleParty = inits()
+    example1(exampleParty)
 }
