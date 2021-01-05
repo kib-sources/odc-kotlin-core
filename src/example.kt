@@ -41,9 +41,6 @@ fun example1(){
     val walletA = Wallet(spkA, sokA, sokAsignature, bok)
     val walletB = Wallet(spkB, sokB, sokBsignature, bok)
 
-
-
-
     /// ---------------------------------------------------------------------------------------------------------------
     /// Инициализация купюры и блокчейнов.
 
@@ -52,11 +49,10 @@ fun example1(){
             bin = BIN,
             currencyCode=ISO_4217_CODE.RUB,
     )
+    println("Сгенерирована банкнота на 500 рублей")
 
     val banknote500_blockchain: MutableList<Block> = mutableListOf()
     val banknote500_protectedBlockChain: MutableList<ProtectedBlock> =  mutableListOf()
-
-
 
     /// ---------------------------------------------------------------------------------------------------------------
     /// Банк -> А
@@ -93,11 +89,13 @@ fun example1(){
     // Шаг 7. Push
     bankIssuer.pushBlock(banknote500, block, protectedBlock)
 
+    println("Банкнота успешно передана Алисе")
+}
 
+fun example2(){
 
     /// ---------------------------------------------------------------------------------------------------------------
     /// A -> B
-
 
 
 }

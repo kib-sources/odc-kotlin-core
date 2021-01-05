@@ -19,6 +19,7 @@ import java.lang.Exception
 import kotlin.random.Random
 
 import core.utils.*
+import java.time.LocalDateTime
 
 class BankIssuer(
         private val bpk: PrivateKey,
@@ -84,7 +85,7 @@ class BankIssuer(
 
         val bnid_: String = when (bnid) {
             null -> {
-                val d = LocalDate.now()
+                val d = LocalDateTime.now()
                 val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")
                 d.format(dateTimeFormatter)
             }
@@ -92,7 +93,7 @@ class BankIssuer(
                 bnid
             }
         }
-        val hashValue = Crypto.hash(bin.toString(), amount.toString(), currencyCode.toString(), bnid_)
+        val hashValue = makeBanknoteHashValue(bin, amount, currencyCode, bnid_)
         val signature = Crypto.signature(hashValue, this.bpk)
 
         val banknote = Banknote(

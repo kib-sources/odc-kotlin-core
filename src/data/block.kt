@@ -5,11 +5,10 @@
 package core.data
 
 import core.crypto.Crypto
+import core.utils.checkHashes
 import java.lang.Exception
 import java.security.PublicKey
-import java.security.Signature
 import java.util.*
-import kotlin.test.expect
 
 
 fun makeBlockHashValue(uuid: UUID, parentUuid: UUID?, bnid: String, magic: String): ByteArray{
@@ -63,7 +62,7 @@ data class Block(
             throw Exception("Блок не до конца определён. Не задан signature")
         }
         val hashValueCheck = makeBlockHashValue(uuid, parentUuid, bnid, magic)
-        if (hashValueCheck !== hashValue){
+        if (!checkHashes(hashValueCheck, hashValue)){
             throw Exception("Некорректно подсчитан hashValue")
         }
         return Crypto.verifySignature(hashValue, signature, publicKey)
