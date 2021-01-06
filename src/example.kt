@@ -4,7 +4,8 @@
  */
 
 
-import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.stream.JsonWriter
 import core.crypto.Crypto
 import core.data.Banknote
 import core.data.Block
@@ -12,6 +13,8 @@ import core.data.ProtectedBlock
 import core.enums.ISO_4217_CODE
 import core.issuer.BankIssuer
 import core.wallet.Wallet
+import java.io.FileWriter
+import java.nio.file.Paths
 import java.security.PublicKey
 
 
@@ -58,8 +61,7 @@ fun inits(): ExampleParty{
 }
 
 
-
-fun example1(exampleParty: ExampleParty): Triple<Banknote, MutableList<Block>, MutableList<ProtectedBlock>>{
+fun example1(examplesFolder: String, exampleParty: ExampleParty): Triple<Banknote, MutableList<Block>, MutableList<ProtectedBlock>>{
 
     val bankIssuer = exampleParty.bankIssuer
     val walletA = exampleParty.walletA
@@ -77,11 +79,14 @@ fun example1(exampleParty: ExampleParty): Triple<Banknote, MutableList<Block>, M
 
     // val json = Json(JsonConfiguration.Stable)
     // val jsonData = json.toJson(banknote)
-    val gson = Gson()
-    val x = gson.toJson(banknote)
+    val gson = GsonBuilder().setPrettyPrinting().create()
 
-    println(x.toString())
+    // println(x.toString())
     println(banknote)
+
+    val jw = JsonWriter(FileWriter("$examplesFolder/banknote.json"))
+    jw.jsonValue(gson.toJson(banknote))
+    jw.close()
 
     val banknote_blockchain: MutableList<Block> = mutableListOf()
     val banknote_protectedBlockChain: MutableList<ProtectedBlock> =  mutableListOf()
@@ -122,6 +127,15 @@ fun example1(exampleParty: ExampleParty): Triple<Banknote, MutableList<Block>, M
     bankIssuer.pushBlock(banknote, block, protectedBlock)
 
     println("Банкнота успешно передана Алисе")
+
+    val jw2 = JsonWriter(FileWriter("$examplesFolder/banknote_blockchain.json"))
+    jw2.jsonValue(gson.toJson(banknote_blockchain))
+    jw2.close()
+
+    val jw3 = JsonWriter(FileWriter("$examplesFolder/banknote_protectedBlockChain.json"))
+    jw3.jsonValue(gson.toJson(banknote_protectedBlockChain))
+    jw3.close()
+
     return Triple(banknote, banknote_blockchain, banknote_protectedBlockChain)
 }
 
@@ -191,11 +205,20 @@ fun example2(exampleParty: ExampleParty, banknote:Banknote, banknote_blockchain:
 }
 
 fun main(args: Array<String>){
+
+    val rootPath = Paths.get(if(args.isEmpty()){
+        System.getProperty("user.dir")
+    } else {
+        args[0]
+    })
+
+    val examplesFolder = "$rootPath/examples"
+
     println("Example application in core")
     // checkExample()
     
     val exampleParty = inits()
-    val (banknote, banknote_blockchain, banknote_protectedBlockChain) = example1(exampleParty)
+    val (banknote, banknote_blockchain, banknote_protectedBlockChain) = example1(examplesFolder, exampleParty)
     example2(exampleParty,  banknote, banknote_blockchain, banknote_protectedBlockChain)
     // -----------------------------------------------------------------------------------------------------------------
     println("Все готово")
