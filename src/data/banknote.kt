@@ -4,17 +4,17 @@
 
 package core.data
 
-import core.enums.ISO_4217_CODE
 import core.crypto.Crypto
-import java.lang.Exception
+import core.enums.ISO_4217_CODE
+import core.utils.checkHashes
 import java.security.PublicKey
-
-import core.utils.*
 
 fun makeBanknoteHashValue(bin: Int, amount: Int, currencyCode: ISO_4217_CODE, bnid: String): ByteArray{
     return Crypto.hash(bin.toString(), amount.toString(), currencyCode.toString(), bnid)
 }
 
+// @Serializable(with = kotlinx.serialization.json.JsonElementSerializer::class)
+// @Serializable
 data class Banknote(
         val bin: Int,
 

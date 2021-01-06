@@ -1,17 +1,19 @@
+/*
+   Пример файла
+   См. процессы в README.md
+ */
 
+
+import com.google.gson.Gson
 import core.crypto.Crypto
 import core.data.Banknote
-import core.data.ProtectedBlock
 import core.data.Block
-import core.issuer.BankIssuer
-
-
-import core.wallet.Wallet
-
+import core.data.ProtectedBlock
 import core.enums.ISO_4217_CODE
-import java.lang.Exception
+import core.issuer.BankIssuer
+import core.wallet.Wallet
 import java.security.PublicKey
-import java.util.*
+
 
 fun checkExample(){
     // println("Hello Kotlin 4!!")
@@ -55,6 +57,8 @@ fun inits(): ExampleParty{
     return ExampleParty(bankIssuer, walletA, walletB, BIN, bok)
 }
 
+
+
 fun example1(exampleParty: ExampleParty): Triple<Banknote, MutableList<Block>, MutableList<ProtectedBlock>>{
 
     val bankIssuer = exampleParty.bankIssuer
@@ -70,6 +74,14 @@ fun example1(exampleParty: ExampleParty): Triple<Banknote, MutableList<Block>, M
             currencyCode=ISO_4217_CODE.RUB,
     )
     println("Сгенерирована банкнота на 500 рублей")
+
+    // val json = Json(JsonConfiguration.Stable)
+    // val jsonData = json.toJson(banknote)
+    val gson = Gson()
+    val x = gson.toJson(banknote)
+
+    println(x.toString())
+    println(banknote)
 
     val banknote_blockchain: MutableList<Block> = mutableListOf()
     val banknote_protectedBlockChain: MutableList<ProtectedBlock> =  mutableListOf()
